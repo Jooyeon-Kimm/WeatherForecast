@@ -1,0 +1,172 @@
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".MainActivity">
+
+
+     <!--가장 최상단 ConstraintLayout 모든 정보 담음-->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/fragmentHome_constraintLayoutTop"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/sky">
+
+        <!-- 첫 번째 날짜와 시간 -->
+        <LinearLayout
+            android:id="@+id/fragmentHome_linearLayoutFirst"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <!-- 날짜와 시간 -->
+            <TextView
+                android:id="@+id/fragmentHome_textViewDateNTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/_16sdp"
+                android:textSize="@dimen/_16sdp"
+                android:textColor="@color/white"
+                android:text="01.03.(금) 14:11" />
+
+
+        </LinearLayout>
+
+        <!-- 두 번째 위치, 즐겨찾기, 검색 -->
+        <LinearLayout
+            android:id="@+id/fragmentHome_linearLayoutSecond"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/fragmentHome_linearLayoutFirst">
+
+            <ImageButton
+                android:id="@+id/toCurrentLocation"
+                android:layout_width="@dimen/_30sdp"
+                android:layout_height="@dimen/_30sdp"
+                android:layout_marginLeft="@dimen/_16sdp"
+                android:contentDescription="현재 위치로 이동"
+                android:src="@drawable/location"
+                android:background="@android:color/transparent"/>
+
+            <TextView
+                android:id="@+id/fragmentHomeTop_textViewCurrLocation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/_12sdp"
+                android:text="대구광역시 서구 상중이동"
+                android:layout_weight="1"
+                android:textSize="@dimen/_14sdp"
+                android:textColor="@color/white"
+                android:clickable="true"
+                android:focusable="true"
+                app:layout_constraintBottom_toTopOf="@+id/fragmentHomeTop_textViewTemperature" />
+
+            <ImageButton
+                android:id="@+id/fragmentHome_imageButtonBookmark"
+                android:layout_width="@dimen/_30sdp"
+                android:layout_height="@dimen/_30sdp"
+                android:layout_marginEnd="@dimen/_4sdp"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/fragmentHome_imageButtonBookmark"
+                android:src="@drawable/star" />
+
+            <ImageButton
+                android:id="@+id/fragmentHome_imageButtonSearch"
+                android:layout_width="@dimen/_30sdp"
+                android:layout_height="@dimen/_30sdp"
+                android:background="@android:color/transparent"
+                android:elevation="10dp"
+                android:defaultFocusHighlightEnabled="true"
+                android:contentDescription="fragmentHomeTop_imageButtonSearch"
+                android:src="@drawable/search" />
+
+
+        </LinearLayout>
+
+        <!-- 세 번째, 온도 & 어제보다 & 아이템 4개 -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/fragmentHome_constraintLayoutFirst"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/fragmentHome_linearLayoutSecond">
+
+            <TextView
+                android:id="@+id/fragmentHomeTop_textViewTemperature"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="3.9"
+                android:textColor="@color/white"
+                android:visibility="visible"
+                android:textSize="@dimen/_90sdp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/fragmentHome_textViewTemperatureUnit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/temperature_unit"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_40sdp"
+                app:layout_constraintBottom_toBottomOf="@+id/fragmentHomeTop_textViewTemperature"
+                app:layout_constraintStart_toEndOf="@id/fragmentHomeTop_textViewTemperature"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/fragmentHome_textViewTemperatureExplain"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="어제보다 4°C 낮아요"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_20sdp"
+                app:layout_constraintEnd_toEndOf="@+id/fragmentHome_textViewTemperatureUnit"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/fragmentHomeTop_textViewTemperature" />
+
+            <!-- 4개 가로로 배열돼있는 UI (item) -->
+            <LinearLayout
+                android:id="@+id/fragmentHome_LinearLayoutInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_30sdp"
+                android:orientation="horizontal"
+
+                app:layout_constraintTop_toBottomOf="@+id/fragmentHome_textViewTemperatureExplain">
+
+                <include layout="@layout/item_temp" />
+
+                <include layout="@layout/item_humi" />
+
+                <include layout="@layout/item_rain" />
+
+                <include layout="@layout/item_wind" />
+
+                <FrameLayout
+                    android:id="@+id/fragmentContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp">
+                </FrameLayout>
+
+            </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
