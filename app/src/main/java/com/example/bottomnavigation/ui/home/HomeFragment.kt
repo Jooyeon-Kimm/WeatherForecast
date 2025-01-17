@@ -29,7 +29,6 @@ class HomeFragment : Fragment() {
         viewPager = view.findViewById(R.id.viewPagerHomeTop)
         viewPager.orientation = ViewPager2.ORIENTATION_VERTICAL
         setupViewPager()
-        Log.d("HomeFragmentJOO", "parentactivity는?"+ requireActivity())
     }
 
     private fun setupViewPager() {

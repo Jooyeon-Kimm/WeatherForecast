@@ -12,4 +12,9 @@
     <string name="fragmentHome_textViewTemperature">3.9°C</string>
     <string name="fragmentHome_imageButtonBookmark">bookmark</string>
     <string name="temperature_unit">°C</string>
+
+    <!-- shared preferences key값 -->
+    <string name="SP_Address">address</string>
+    <string name="SP_AddressLong">address_long</string>
+    <string name="관심지역설정">관심지역 설정</string>
 </resources>

@@ -1,5 +1,6 @@
 package com.example.bottomnavigation.ui.home
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -40,43 +41,25 @@ class HomeBottomFragment : Fragment() {
         return view
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         sharedWeatherViewModel.dailyWeatherItems.observe(viewLifecycleOwner) { items ->
             if (items != null && items.isNotEmpty()) {
                 view.findViewById<TextView>(R.id.hourly_forecast_text2_date).text= items[0].dateNum + " ~ " + items[6].dateNum
                 weatherAdapter.updateData(items) // 어댑터에 데이터 업데이트
-                Log.d("HomeBottomFragment", "Items updated in RecyclerView: ${items.size}")
+                Log.d("HomeBottomFragmentJOO", "Items updated in RecyclerView: ${items.size}")
+//                for (i:Int in 1..7){
+//                    Log.d("itemJOO$i", "${items[i].iconAM}")
+//                }
             } else {
-                Log.d("HomeBottomFragment", "Received empty or null items list")
+                Log.d("HomeBottomFragmentJOO", "Received empty or null items list")
             }
         }
     }
 
 
-    // 요일 알아오는 함수
-    private fun doDayOfWeek(): String {
-        val cal: Calendar = Calendar.getInstance()
-        var strWeek: String = "미정"
-        val nWeek: Int = cal.get(Calendar.DAY_OF_WEEK)
 
-        if (nWeek == 1) {
-            strWeek = "일"
-        } else if (nWeek == 2) {
-            strWeek = "월"
-        } else if (nWeek == 3) {
-            strWeek = "화"
-        } else if (nWeek == 4) {
-            strWeek = "수"
-        } else if (nWeek == 5) {
-            strWeek = "목"
-        } else if (nWeek == 6) {
-            strWeek = "금"
-        } else if (nWeek == 7) {
-            strWeek = "토"
-        }
-        return strWeek
-    }
 
 
 

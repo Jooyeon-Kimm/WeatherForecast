@@ -15,9 +15,9 @@
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbarSearch"
             android:layout_width="0dp"
-            android:layout_height="@dimen/_40sdp"
+            android:layout_height="wrap_content"
             android:background="@color/white"
-            android:elevation="@dimen/_12sdp"
+            android:elevation="@dimen/_10sdp"
             android:backgroundTint="#FFFFFF"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -32,7 +32,7 @@
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:text="지역검색"
-                android:textSize="18sp"
+                android:textSize="30sp"
                 android:textColor="@color/black" />
 
             <!-- X 버튼 (맨 오른쪽) -->

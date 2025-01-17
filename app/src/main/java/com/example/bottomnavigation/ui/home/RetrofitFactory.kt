@@ -1,4 +1,4 @@
-package com.example.bottomnavigation
+package com.example.bottomnavigation.ui.home
 
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory

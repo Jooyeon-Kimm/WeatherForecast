@@ -2,6 +2,7 @@ package com.example.bottomnavigation.ui.home
 
 import android.Manifest
 import android.content.Context
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Geocoder
@@ -17,38 +18,36 @@ import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.media3.common.C
 import com.example.bottomnavigation.BuildConfig
 import com.example.bottomnavigation.LocationFragment
 import com.example.bottomnavigation.R
-import com.example.bottomnavigation.RetrofitFactory
 import com.example.bottomnavigation.SearchFragment
-import com.example.bottomnavigation.SharedPreferencesBookmark
+import com.example.bottomnavigation.data.FavoriteAddress
 import com.example.bottomnavigation.models.SharedWeatherViewModel
 import com.example.bottomnavigation.data.WeatherDTO
 import com.example.bottomnavigation.models.WeatherService
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.io.IOException
+import java.math.RoundingMode
+import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.Locale
-import kotlin.properties.Delegates
 
 class HomeTopFragment : Fragment() {
+    private lateinit var sharedPreferences : SharedPreferences
     private val sharedWeatherViewModel: SharedWeatherViewModel by activityViewModels()
-    private lateinit var sharedPreferencesBookmark: SharedPreferencesBookmark
     private var currentAddress: String? = null
-    private var isManualAddress: Boolean = false
     private lateinit var providerClient: FusedLocationProviderClient
     private var updateHandler = Handler(Looper.getMainLooper())
     private lateinit var updateRunnable: Runnable
@@ -67,12 +66,14 @@ class HomeTopFragment : Fragment() {
     private var longitude: Double = 0.0
     private var lastMinute: Int = -1
 
+
     // ■
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
         return inflater.inflate(R.layout.fragment_home_top, container, false)
     }
 
@@ -83,14 +84,37 @@ class HomeTopFragment : Fragment() {
 
         // 위치 > 날씨 > 시간 업데이트
         providerClient = LocationServices.getFusedLocationProviderClient(requireContext())
+        observeBookmarkStates()
+        observeLocationChanges()
+        startFetchingLocationData()
         setupWeatherUpdate()
         startUpdatingDateTime()
 
     }
 
-    // ■
+    // ViewPager로 HomeBottomFragment 갔다가
+    // 다시 HomeTopFragmet 가면, onPause()였다가 onResume()이 되는 듯
     override fun onResume() {
         super.onResume()
+
+        // LocationFragment에서 북마크된 주소 다 들고와서, HomeTOpFragment의 위치인 curLoc와 주소가
+        // 같은 item이 북마크된 주소 리스트에 담겨있으면
+        // icon 을 yellow_star로 업데이트
+        // 없으면 그냥 star로 업데이트
+        val curLoc = requireActivity().findViewById<TextView>(R.id.fragmentHomeTop_textViewCurrLocation).text
+        Log.d("BookmarkCheck:Onresume", "$curLoc")
+        sharedWeatherViewModel.addresses.observe(viewLifecycleOwner) { addresses ->
+            val bookmarkedAddresses = addresses.filter { it.isBookmarked }
+            val isCurLocBookmarked = bookmarkedAddresses.any { it.title == curLoc }
+            val bookmarkButton = requireActivity().findViewById<ImageButton>(R.id.fragmentHome_imageButtonBookmark)
+            if (isCurLocBookmarked) {
+                bookmarkButton.setImageResource(R.drawable.star)
+                bookmarkButton.tag = R.drawable.star
+            } else {
+                bookmarkButton.setImageResource(R.drawable.star_yellow)
+                bookmarkButton.tag = R.drawable.star_yellow
+            }
+        }
     }
 
     // ■
@@ -107,8 +131,21 @@ class HomeTopFragment : Fragment() {
     }
 
 
+    private fun observeBookmarkStates() {
+        sharedWeatherViewModel.addresses.observe(viewLifecycleOwner, { addresses ->
+            // Handle changes to address list, if needed
+        })
+
+        sharedWeatherViewModel.isBookmarked.observe(viewLifecycleOwner, { isBookmarked ->
+            val icon = if (isBookmarked) R.drawable.star_yellow else R.drawable.star
+            bookmarkButton.setImageResource(icon)
+        })
+    }
+
     // ● 뷰 셋
+    @OptIn(DelicateCoroutinesApi::class)
     private fun setupViews(view: View) {
+        sharedPreferences = requireContext().getSharedPreferences("sp", Context.MODE_PRIVATE)
         dateView = view.findViewById(R.id.fragmentHome_textViewDateNTime)
         temperatureTextView = view.findViewById(R.id.fragmentHomeTop_textViewTemperature)
         tempFeelTextView = view.findViewById(R.id.weatherItem_tempNum)
@@ -120,24 +157,33 @@ class HomeTopFragment : Fragment() {
         locationButton = view.findViewById(R.id.fragmentHomeTop_textViewCurrLocation)
         bookmarkButton = view.findViewById(R.id.fragmentHome_imageButtonBookmark)
         searchButton = view.findViewById(R.id.fragmentHome_imageButtonSearch)
+
         // 날짜 시간 현재로 업데이트
         dateView.text = getCurrentDateTime()
 
         // 현재 지역 이미지 버튼 (일단 처음 초기화는 MainActivity에서 받아온 것으로..)
         var address = getStringFromPreferences("address")
-        Log.d("SharedPreferencesJOO", "Address: $address")
+        sharedWeatherViewModel.updateLocation(address)
+        val longAddress = getStringFromPreferences("addressLong")
+        Log.d("HTF_JOO", "Address: $address")
+        Log.d("HTF_JOO", "AddressLong: $longAddress")
+
         locationButton.text = address
 
+
         // 이미지 버튼 (현재위치로) 클릭하면, 현재 위치정보로 업데이트
-        val toCurrentLocation: ImageButton = view.findViewById(R.id.toCurrentLocation)
+        val toCurrentLocation: ImageButton = requireView().findViewById(R.id.toCurrentLocation)
         toCurrentLocation.setOnClickListener {
             getLocationData() // 다시 현재 위치 데이터 가져오기
             val updatedAddress : String = getStringFromPreferences("address")
-            Log.d("JOO현재위치 이미지버튼을 눌렀습니다. 현재위치는: ", updatedAddress)
+            Log.d("BookmarkCheck: 현재위치로", updatedAddress)
             locationButton.text = updatedAddress
             val updatedLoc : Location = getLocationNum(updatedAddress)
             fetchWeatherData(updatedLoc.latitude, updatedLoc.longitude)
 
+            val isCurrentlyBookmarked = sharedWeatherViewModel.isAddressBookmarked(updatedAddress)
+            Log.d("BookmarkCheck: 현재위치로 북마크여부", isCurrentlyBookmarked.toString())
+            updateBookmarkIcon(isCurrentlyBookmarked)
         }
 
         // 지역 버튼 클릭하면, 즐겨찾기 페이지로
@@ -145,33 +191,71 @@ class HomeTopFragment : Fragment() {
             Log.d("JOO", "Location TextView Clicked")
             val locationFragment = LocationFragment()
             requireActivity().supportFragmentManager.beginTransaction()
-                .replace(
-                    R.id.fragmentHomeFrameLayout,
-                    locationFragment,
-                    "LOCATION_FRAGMENT"
-                )  // fragmentContainer는 실제 존재하는 레이아웃의 ID여야 합니다.
-                .addToBackStack("LOCATION_FRAGMENT")  // 뒤로 가기 스택에 명확하게 추가
+                .replace(R.id.fragmentHomeFrameLayout, locationFragment, "LOCATION_FRAGMENT")
+                .addToBackStack(null)  // 뒤로 가기 스택
                 .commit()
         }
 
 
         // 검색 버튼 클릭하면, 도로명 주소 검색 페이지로
         searchButton.setOnClickListener {
-            Log.d("JOO", "Search ImageButton C")
+            Log.d("JOO", "Search ImageButton Clicked")
             val searchFragment = SearchFragment()
-            requireActivity().supportFragmentManager.beginTransaction()
-                .replace(R.id.fragmentHomeFrameLayout, searchFragment, "SEARCH_FRAGMENT")  // 기존 프래그먼트 대신 검색 프래그먼트로 전체 화면 교체
-                .addToBackStack("SEARCH_FRAGMENT")  // 백 스택에 추가하여 뒤로가기 버튼으로 돌아갈 수 있게 함
+            val transaction = requireActivity().supportFragmentManager.beginTransaction()
+            val currentFragment = requireActivity().supportFragmentManager.findFragmentById(R.id.fragmentHomeFrameLayout)
+            currentFragment?.let {
+                transaction.hide(it)
+            }
+            transaction.replace(R.id.fragmentHomeFrameLayout, searchFragment)
+                .addToBackStack("SEARCH_FRAGMENT")
                 .commit()
+
         }
 
+
+        val isCurrentlyBookmarked = sharedWeatherViewModel.isAddressBookmarked(getStringFromPreferences("address"))
+        updateBookmarkIcon(isCurrentlyBookmarked)
+        // 북마크 버튼 클릭 시 처리
         bookmarkButton.setOnClickListener {
+            address = getStringFromPreferences("address")
+            if (address.isNullOrEmpty()) {
+                Log.e("BookmarkCheck", "Address is null or empty. Cannot update bookmark state.")
+                return@setOnClickListener
+            }
 
+            val isCurrentlyBookmarked = sharedWeatherViewModel.isAddressBookmarked(address)
+            Log.d("BookmarkCheckHTF", "add: $address, bm: $isCurrentlyBookmarked")
+            if (isCurrentlyBookmarked) {
+                sharedWeatherViewModel.updateBookmarkState(address, false)
+                updateBookmarkIcon(false)
+                Log.d("BookmarkCheck", "$address is now unbookmarked.")
+            } else {
+                sharedWeatherViewModel.updateBookmarkState(address, true)
+                updateBookmarkIcon(true)
+                Log.d("BookmarkCheck", "$address is now bookmarked.")
+            }
+
+            Log.d("BookmarkCheck", "############################################################")
+            sharedWeatherViewModel.addresses.value?.forEach {
+                Log.d("BookmarkCheck", "Address: ${it.title}, Bookmarked: ${it.isBookmarked}")
+            }
         }
-
 
 
     }
+
+
+    // ● 북마크아이콘
+    private fun updateBookmarkIcon(isBookmarked: Boolean) {
+        if (isBookmarked) {
+            bookmarkButton.setImageResource(R.drawable.star_yellow)
+            bookmarkButton.tag = R.drawable.star_yellow
+        } else {
+            bookmarkButton.setImageResource(R.drawable.star)
+            bookmarkButton.tag = R.drawable.star
+        }
+    }
+
 
     // ● sharedPreferences 가져오기
     private fun getStringFromPreferences(key: String, defaultValue: String = ""): String {
@@ -247,7 +331,10 @@ class HomeTopFragment : Fragment() {
 
     // ● UI 업데이트 ( UI Thread = Main Thread )
     private fun updateWeatherUI(weather: WeatherDTO) {
-        temperatureTextView.text = "${weather.current.temp}"
+        var DF = DecimalFormat("#.#") // 소수점 첫째자리까지
+        DF.roundingMode = RoundingMode.HALF_EVEN // 값이 가장 가까운 곳으로 반올림
+
+        temperatureTextView.text = DF.format(weather.current.temp)
         tempFeelTextView.text = "${weather.current.feels_like}"
         humidityTextView.text = "${weather.current.humidity}"
         precipitationTextView.text = "${weather.minutely?.getOrNull(0)?.precipitation ?: "N/A"}"
@@ -257,7 +344,7 @@ class HomeTopFragment : Fragment() {
     }
 
     // ● 데이터 없으면 UI 업데이트
-    private fun updateUIError() {
+    fun updateUIError() {
         temperatureTextView.text = "N/A"
         tempFeelTextView.text = "N/A"
         humidityTextView.text = "N/A"
@@ -322,12 +409,16 @@ class HomeTopFragment : Fragment() {
                     // 위도, 경도, 주소명 저장
                     saveStringInPreferences("latitude", "$latitude")
                     saveStringInPreferences("longitude", "$longitude")
-                    saveStringInPreferences("address", addressTrim(currentAddress!!)) // string 데이터 저장
+                    saveStringInPreferences("address", addressTrim(currentAddress!!)) // 짧은 주소 저장
+                    saveStringInPreferences("addressLong", currentAddress!!.replace("대한민국 ", "")) // 좀 더 긴 주소 저장
 
                     // 위도, 경도, 주소 Log 찍기
                     Log.d("JOO_HomeTopF_현재위치 가져오기:", "$latitude, $longitude")
                     Log.d("JOO_HomeTopF_현재위치 가져오기:", currentAddress!!)
-                    Log.d("JOO_HomeTopF_현재위치 가져오기:", addressTrim(currentAddress!!))
+                    Log.d("JOO_HomeTopF_상세위치 가져오기:", currentAddress!!.replace("대한민국 ", ""))
+
+                    // 날씨 정보 업데이트
+                    fetchWeatherData(latitude, longitude)
                 } else {
                     Log.d("HomeTopFragment", "Location is null")
                 }
@@ -362,10 +453,10 @@ class HomeTopFragment : Fragment() {
 
     // ● sharedPreferences에 key:value 저장하는 함수
     private fun saveStringInPreferences(key: String, value: String) {
-        val sharedPreferences = requireContext().getSharedPreferences("LocationPrefs", Context.MODE_PRIVATE)
+        val sharedPreferences = requireContext().getSharedPreferences("sp", Context.MODE_PRIVATE)
         with(sharedPreferences.edit()) {
             putString(key, value)
-            apply()
+            commit()
         }
     }
 
@@ -379,7 +470,7 @@ class HomeTopFragment : Fragment() {
             .replace("대한민국", "") // "대한민국" 제거
             .trim() // 앞뒤 공백 제거
             .split(" ") // 공백으로 분리
-            .take(4) // 최대 4개의 요소만 가져옴
+            .take(3) // 최대 4개의 요소만 가져옴
             .joinToString(" ") // 다시 공백으로 합침
     }
 
@@ -401,4 +492,20 @@ class HomeTopFragment : Fragment() {
         }
     }
 
+    // ● SharedPreferences에서 주소 삭제
+    private fun removeFromPreferences(key: String) {
+        with(sharedPreferences.edit()) {
+            remove(key)
+            apply()
+        }
+    }
+
+    // ● SharedPreferences에서 위치 변경 감지
+    private fun observeLocationChanges() {
+        sharedWeatherViewModel.currentLocation.observe(viewLifecycleOwner) { newLocation ->
+            locationButton.text = newLocation
+            val updatedLoc = getLocationNum(newLocation)
+            fetchWeatherData(updatedLoc.latitude, updatedLoc.longitude)
+        }
+    }
 }

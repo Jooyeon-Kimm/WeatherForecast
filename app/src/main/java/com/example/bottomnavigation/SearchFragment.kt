@@ -13,14 +13,17 @@ import android.webkit.JavascriptInterface
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import android.widget.Toolbar
 import androidx.appcompat.app.AppCompatActivity.MODE_PRIVATE
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import com.example.bottomnavigation.data.WeatherDTO
 import com.example.bottomnavigation.databinding.FragmentSearchBinding
+import com.example.bottomnavigation.models.SharedWeatherViewModel
 import com.example.bottomnavigation.models.WeatherService
 import retrofit2.Call
 import retrofit2.Callback
@@ -30,7 +33,7 @@ import java.util.Locale
 
 class SearchFragment : Fragment() {
     private lateinit var binding : FragmentSearchBinding
-    private lateinit var toolbar : Toolbar
+    private val sharedWeatherViewModel: SharedWeatherViewModel by activityViewModels()
 
     @Override
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,6 +60,7 @@ class SearchFragment : Fragment() {
 
     }
 
+
     @SuppressLint("SetJavaScriptEnabled")
     private fun setupWebView() {
         val webView: WebView = binding.webView
@@ -75,32 +79,36 @@ class SearchFragment : Fragment() {
         }
         // 개인 Host Domain URL 로드
         webView.loadUrl("https://weatherapp-6fa09.web.app/")
-
-//        requireActivity().runOnUiThread{
-//            requireActivity().supportFragmentManager.popBackStack() // HomeTopFragment로 돌아가기
-//        }
     }
 
     inner class BridgeInterface {
         @JavascriptInterface
         fun processDATA(data: String) {
-            Log.d("AddressFragment", "Address data received: $data")
+            Log.d("SearchFragmentJOO", "Address data received: $data")
             // 필요한 경우 콜백이나 ViewModel을 사용해 데이터 처리
             Toast.makeText(requireContext(), "주소: $data", Toast.LENGTH_SHORT).show()
-            Log.d("JOO_AddressAPI", "주소: $data")
+            Log.d("SearchFragmentJOO", "주소: $data")
+            saveStringInPreferences("address", data)
 
-            // SharedPreferences에 새로운 위치 저장
-            saveStringInPreferences("changedAddress", data)
-            saveBooleanInPreferences("isManualAddress", true) //  검색한 위치를 HomeFragment에 반환 여부
+            // HomeTop프래그먼트의 위치 textview.text 업데이트
+            requireActivity().runOnUiThread {
+                val homeTopLocTV = requireActivity().findViewById<TextView>(R.id.fragmentHomeTop_textViewCurrLocation)
+                homeTopLocTV.text = data
+                saveStringInPreferences("updatedAddress", data)
+                Log.d("BookmarkCheck: SearchFragment", data)
+            }
 
             // 프래그먼트 종료
             requireActivity().supportFragmentManager.popBackStack()
 
-            val homeTopLocTV = requireActivity().findViewById<TextView>(R.id.fragmentHomeTop_textViewCurrLocation)
-            homeTopLocTV.text = data
-            saveStringInPreferences("changedAddress", data)
+
         }
     }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+    }
+
 
     // ■ SharedPreference 문자열 저장하는 함수
     private fun saveStringInPreferences(key: String, string: String) {
