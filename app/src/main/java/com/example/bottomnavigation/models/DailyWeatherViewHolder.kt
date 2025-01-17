@@ -11,8 +11,6 @@ class DailyWeatherViewHolder(private val view: View) : RecyclerView.ViewHolder(v
     fun bind(item: DailyWeatherItem) {
         view.findViewById<TextView>(R.id.dateDayofWeek).text = item.dateDayOfWeek
         view.findViewById<TextView>(R.id.dateNum).text = item.dateNum
-        view.findViewById<ImageView>(R.id.weatherAM).setImageResource(item.iconAM)
-        view.findViewById<ImageView>(R.id.weatherPM).setImageResource(item.iconPM)
         view.findViewById<TextView>(R.id.rainAM).text = "${item.rainProbAM}%"
         view.findViewById<TextView>(R.id.rainPM).text = "${item.rainProbPM}%"
         view.findViewById<TextView>(R.id.temp_min).text = "${item.minTemp}°"

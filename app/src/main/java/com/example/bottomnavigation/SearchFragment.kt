@@ -38,12 +38,14 @@ class SearchFragment : Fragment() {
     @Override
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d("LC_SearchFragment_onCreate", "sf on created")
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        Log.d("LC_SearchFragment_onCreateView", "sf onCreateView")
         binding = FragmentSearchBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -51,7 +53,7 @@ class SearchFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        Log.d("LC_SearchFragment_onViewCreated", "sf onViewCreated")
         setupWebView()
         val toolbar_close : ImageView = binding.toolbarClose
         toolbar_close.setOnClickListener {
@@ -94,7 +96,7 @@ class SearchFragment : Fragment() {
             requireActivity().runOnUiThread {
                 val homeTopLocTV = requireActivity().findViewById<TextView>(R.id.fragmentHomeTop_textViewCurrLocation)
                 homeTopLocTV.text = data
-                saveStringInPreferences("updatedAddress", data)
+                saveStringInPreferences("address", data)
                 Log.d("BookmarkCheck: SearchFragment", data)
             }
 

@@ -9,6 +9,7 @@ import android.location.Geocoder
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -16,17 +17,11 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.findNavController
-import androidx.navigation.ui.setupWithNavController
 import com.example.bottomnavigation.databinding.ActivityMainBinding
 import com.example.bottomnavigation.models.SharedWeatherViewModel
-import com.example.bottomnavigation.ui.ViewPagerTopBottomAdapter
 import com.example.bottomnavigation.ui.home.HomeFragment
-import com.example.bottomnavigation.ui.home.HomeTopFragment
-import com.example.bottomnavigation.ui.home.RetrofitFactory
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.IOException
@@ -60,7 +55,7 @@ class MainActivity : AppCompatActivity() {
             val homeFragment = HomeFragment()
             supportFragmentManager.beginTransaction()
                 .replace(R.id.mainActivityFragment, homeFragment) // mainActivityFragment에 HomeTopFragment 표시
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE) // 전환 애니메이션(optional)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                 .commit()
         }
 
@@ -171,5 +166,6 @@ class MainActivity : AppCompatActivity() {
             .take(3) // 최대 4개의 요소만 가져옴
             .joinToString(" ") // 다시 공백으로 합침
     }
+
 
 }

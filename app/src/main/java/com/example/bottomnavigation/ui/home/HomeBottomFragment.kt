@@ -46,12 +46,12 @@ class HomeBottomFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         sharedWeatherViewModel.dailyWeatherItems.observe(viewLifecycleOwner) { items ->
             if (items != null && items.isNotEmpty()) {
-                view.findViewById<TextView>(R.id.hourly_forecast_text2_date).text= items[0].dateNum + " ~ " + items[6].dateNum
+//                view.findViewById<TextView>(R.id.hourly_forecast_text2_date).text= items[0].dateNum + " ~ " + items[6].dateNum
                 weatherAdapter.updateData(items) // 어댑터에 데이터 업데이트
                 Log.d("HomeBottomFragmentJOO", "Items updated in RecyclerView: ${items.size}")
-//                for (i:Int in 1..7){
-//                    Log.d("itemJOO$i", "${items[i].iconAM}")
-//                }
+                for (i:Int in 1..6){
+                    Log.d("itemJOO$i", items[i].minTemp)
+                }
             } else {
                 Log.d("HomeBottomFragmentJOO", "Received empty or null items list")
             }

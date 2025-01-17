@@ -15,12 +15,13 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
             android:orientation="vertical">
             <TextView
                 android:id="@+id/dateDayofWeek"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/_20sdp"
                 android:text="화"
                 android:textSize="@dimen/_12sdp"
                 android:textColor="#000"/>
@@ -29,45 +30,34 @@
                 android:id="@+id/dateNum"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/_20sdp"
                 android:text="1.7"
                 android:textColor="#5D5656"
                 android:textSize="@dimen/_8sdp" />
         </LinearLayout>
 
-        <!--[오전] 날씨 아이콘-->
-        <ImageView
-            android:id="@+id/weatherAM"
-            android:layout_width="@dimen/_12sdp"
-            android:layout_height="@dimen/_12sdp"
-            android:layout_marginLeft="@dimen/_12sdp"
-            android:src="@drawable/wi_day_sunny"/>
+
 
         <!--[오전] 강수확률-->
         <TextView
             android:id="@+id/rainAM"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/_12sdp"
+            android:layout_weight="1"
             android:text="0%"
+            android:gravity="center"
             android:textSize="@dimen/_12sdp"
             android:textColor="#000"/>
 
-        <!--[오후] 날씨 아이콘-->
-        <ImageView
-            android:id="@+id/weatherPM"
-            android:layout_width="@dimen/_12sdp"
-            android:layout_height="@dimen/_12sdp"
-            android:layout_marginLeft="@dimen/_12sdp"
-            android:src="@drawable/wi_cloud"/>
+
 
         <!--[오후] 강수확률-->
         <TextView
             android:id="@+id/rainPM"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/_12sdp"
+            android:layout_weight="1"
             android:text="30%"
+            android:gravity="center"
             android:textSize="@dimen/_12sdp"
             android:textColor="#000"/>
 
@@ -76,8 +66,9 @@
             android:id="@+id/temp_min"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/_12sdp"
+            android:layout_weight="1"
             android:text="-3°"
+            android:gravity="center"
             android:textSize="@dimen/_12sdp"
             android:textColor="@color/recyclerViewItem_blue"/>
 
@@ -86,8 +77,9 @@
             android:id="@+id/temp_max"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/_12sdp"
+            android:layout_weight="1"
             android:text="4°"
+            android:gravity="center"
             android:textSize="@dimen/_12sdp"
             android:textColor="@color/recyclerViewItem_red"/>
 

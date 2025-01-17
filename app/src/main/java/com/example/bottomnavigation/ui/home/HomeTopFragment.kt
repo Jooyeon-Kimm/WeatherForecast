@@ -23,10 +23,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.bottomnavigation.BuildConfig
-import com.example.bottomnavigation.LocationFragment
+import com.example.bottomnavigation.BookmarkFragment
 import com.example.bottomnavigation.R
 import com.example.bottomnavigation.SearchFragment
-import com.example.bottomnavigation.data.FavoriteAddress
+import com.example.bottomnavigation.data.RetrofitFactory
 import com.example.bottomnavigation.models.SharedWeatherViewModel
 import com.example.bottomnavigation.data.WeatherDTO
 import com.example.bottomnavigation.models.WeatherService
@@ -73,7 +73,7 @@ class HomeTopFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
+        Log.d("LC_HTF_onCreateView", "htf onCreateView")
         return inflater.inflate(R.layout.fragment_home_top, container, false)
     }
 
@@ -82,6 +82,7 @@ class HomeTopFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupViews(view)
 
+
         // 위치 > 날씨 > 시간 업데이트
         providerClient = LocationServices.getFusedLocationProviderClient(requireContext())
         observeBookmarkStates()
@@ -89,58 +90,41 @@ class HomeTopFragment : Fragment() {
         startFetchingLocationData()
         setupWeatherUpdate()
         startUpdatingDateTime()
-
+        Log.d("LC_HTF_onViewCreated", "htf onViewCreated")
     }
 
-    // ViewPager로 HomeBottomFragment 갔다가
-    // 다시 HomeTopFragmet 가면, onPause()였다가 onResume()이 되는 듯
-    override fun onResume() {
-        super.onResume()
-
-        // LocationFragment에서 북마크된 주소 다 들고와서, HomeTOpFragment의 위치인 curLoc와 주소가
-        // 같은 item이 북마크된 주소 리스트에 담겨있으면
-        // icon 을 yellow_star로 업데이트
-        // 없으면 그냥 star로 업데이트
-        val curLoc = requireActivity().findViewById<TextView>(R.id.fragmentHomeTop_textViewCurrLocation).text
-        Log.d("BookmarkCheck:Onresume", "$curLoc")
-        sharedWeatherViewModel.addresses.observe(viewLifecycleOwner) { addresses ->
-            val bookmarkedAddresses = addresses.filter { it.isBookmarked }
-            val isCurLocBookmarked = bookmarkedAddresses.any { it.title == curLoc }
-            val bookmarkButton = requireActivity().findViewById<ImageButton>(R.id.fragmentHome_imageButtonBookmark)
-            if (isCurLocBookmarked) {
-                bookmarkButton.setImageResource(R.drawable.star)
-                bookmarkButton.tag = R.drawable.star
-            } else {
-                bookmarkButton.setImageResource(R.drawable.star_yellow)
-                bookmarkButton.tag = R.drawable.star_yellow
-            }
-        }
-    }
 
     // ■
     override fun onPause() {
         super.onPause()
-        updateHandler.removeCallbacks(updateRunnable)  // Fragment가 보이지 않을 때 갱신 중단
+        Log.d("LC_HTF_onPause", "htf onPause")
+        updateHandler.removeCallbacks(updateRunnable)
+        // Fragment가 보이지 않을 때 1분마다 갱신 중단
     }
+
+
 
     // ■
     override fun onDestroyView() {
         super.onDestroyView()
+        Log.d("LC_HTF_onDestroyView", "htf onDestroyView")
+
         // 뷰가 파괴될 때 업데이트 중단
         stopUpdatingDateTime()
     }
 
 
     private fun observeBookmarkStates() {
-        sharedWeatherViewModel.addresses.observe(viewLifecycleOwner, { addresses ->
-            // Handle changes to address list, if needed
-        })
+        sharedWeatherViewModel.addresses.observe(viewLifecycleOwner) { addresses ->
+            // 현재 Address에 해당하는 북마크 상태를 확인
+            val isBookmarked = addresses.any { it.title == currentAddress && it.isBookmarked }
 
-        sharedWeatherViewModel.isBookmarked.observe(viewLifecycleOwner, { isBookmarked ->
+            // 북마크 상태에 따라 아이콘 변경
             val icon = if (isBookmarked) R.drawable.star_yellow else R.drawable.star
             bookmarkButton.setImageResource(icon)
-        })
+        }
     }
+
 
     // ● 뷰 셋
     @OptIn(DelicateCoroutinesApi::class)
@@ -161,8 +145,8 @@ class HomeTopFragment : Fragment() {
         // 날짜 시간 현재로 업데이트
         dateView.text = getCurrentDateTime()
 
-        // 현재 지역 이미지 버튼 (일단 처음 초기화는 MainActivity에서 받아온 것으로..)
-        var address = getStringFromPreferences("address")
+        // 현재 지역 이미지 버튼
+        val address = getStringFromPreferences("address")
         sharedWeatherViewModel.updateLocation(address)
         val longAddress = getStringFromPreferences("addressLong")
         Log.d("HTF_JOO", "Address: $address")
@@ -175,13 +159,13 @@ class HomeTopFragment : Fragment() {
         val toCurrentLocation: ImageButton = requireView().findViewById(R.id.toCurrentLocation)
         toCurrentLocation.setOnClickListener {
             getLocationData() // 다시 현재 위치 데이터 가져오기
-            val updatedAddress : String = getStringFromPreferences("address")
-            Log.d("BookmarkCheck: 현재위치로", updatedAddress)
-            locationButton.text = updatedAddress
-            val updatedLoc : Location = getLocationNum(updatedAddress)
+            val curAdd : String = getStringFromPreferences("address")
+            Log.d("BookmarkCheck: 현재위치로", curAdd)
+            locationButton.text = curAdd
+            val updatedLoc : Location = getLocationNum(curAdd)
             fetchWeatherData(updatedLoc.latitude, updatedLoc.longitude)
 
-            val isCurrentlyBookmarked = sharedWeatherViewModel.isAddressBookmarked(updatedAddress)
+            val isCurrentlyBookmarked = sharedWeatherViewModel.isAddressBookmarked(curAdd)
             Log.d("BookmarkCheck: 현재위치로 북마크여부", isCurrentlyBookmarked.toString())
             updateBookmarkIcon(isCurrentlyBookmarked)
         }
@@ -189,10 +173,10 @@ class HomeTopFragment : Fragment() {
         // 지역 버튼 클릭하면, 즐겨찾기 페이지로
         locationButton.setOnClickListener {
             Log.d("JOO", "Location TextView Clicked")
-            val locationFragment = LocationFragment()
+            val bookmarkFragment = BookmarkFragment()
             requireActivity().supportFragmentManager.beginTransaction()
-                .replace(R.id.fragmentHomeFrameLayout, locationFragment, "LOCATION_FRAGMENT")
-                .addToBackStack(null)  // 뒤로 가기 스택
+                .replace(R.id.fragmentHomeFrameLayout, bookmarkFragment, "LOCATION_FRAGMENT")
+                .addToBackStack(null)
                 .commit()
         }
 
@@ -202,46 +186,31 @@ class HomeTopFragment : Fragment() {
             Log.d("JOO", "Search ImageButton Clicked")
             val searchFragment = SearchFragment()
             val transaction = requireActivity().supportFragmentManager.beginTransaction()
-            val currentFragment = requireActivity().supportFragmentManager.findFragmentById(R.id.fragmentHomeFrameLayout)
-            currentFragment?.let {
-                transaction.hide(it)
-            }
+            transaction.detach(HomeTopFragment())
             transaction.replace(R.id.fragmentHomeFrameLayout, searchFragment)
                 .addToBackStack("SEARCH_FRAGMENT")
                 .commit()
-
         }
 
 
-        val isCurrentlyBookmarked = sharedWeatherViewModel.isAddressBookmarked(getStringFromPreferences("address"))
-        updateBookmarkIcon(isCurrentlyBookmarked)
+
         // 북마크 버튼 클릭 시 처리
         bookmarkButton.setOnClickListener {
-            address = getStringFromPreferences("address")
-            if (address.isNullOrEmpty()) {
-                Log.e("BookmarkCheck", "Address is null or empty. Cannot update bookmark state.")
-                return@setOnClickListener
-            }
-
-            val isCurrentlyBookmarked = sharedWeatherViewModel.isAddressBookmarked(address)
-            Log.d("BookmarkCheckHTF", "add: $address, bm: $isCurrentlyBookmarked")
+            var isCurrentlyBookmarked: Boolean = sharedWeatherViewModel.isAddressBookmarked(address)
             if (isCurrentlyBookmarked) {
                 sharedWeatherViewModel.updateBookmarkState(address, false)
                 updateBookmarkIcon(false)
-                Log.d("BookmarkCheck", "$address is now unbookmarked.")
             } else {
                 sharedWeatherViewModel.updateBookmarkState(address, true)
                 updateBookmarkIcon(true)
-                Log.d("BookmarkCheck", "$address is now bookmarked.")
-            }
-
-            Log.d("BookmarkCheck", "############################################################")
-            sharedWeatherViewModel.addresses.value?.forEach {
-                Log.d("BookmarkCheck", "Address: ${it.title}, Bookmarked: ${it.isBookmarked}")
             }
         }
 
+    }
 
+    override fun onResume() {
+        super.onResume()
+        Log.d("HTF_onResume", "htf resume started.")
     }
 
 
@@ -331,16 +300,27 @@ class HomeTopFragment : Fragment() {
 
     // ● UI 업데이트 ( UI Thread = Main Thread )
     private fun updateWeatherUI(weather: WeatherDTO) {
-        var DF = DecimalFormat("#.#") // 소수점 첫째자리까지
+        var DF = DecimalFormat("0.0") // 소수점 첫째자리까지 항상 표시 (0), 없을 때 표시 안하려면 (#)
         DF.roundingMode = RoundingMode.HALF_EVEN // 값이 가장 가까운 곳으로 반올림
+        var rain_sum : String = rain_onehour(weather)
 
         temperatureTextView.text = DF.format(weather.current.temp)
-        tempFeelTextView.text = "${weather.current.feels_like}"
+        tempFeelTextView.text = DF.format(weather.current.feels_like)
         humidityTextView.text = "${weather.current.humidity}"
-        precipitationTextView.text = "${weather.minutely?.getOrNull(0)?.precipitation ?: "N/A"}"
+        precipitationTextView.text = rain_sum
         windDirectionTextView.text = windDirConvert(weather.current.wind_deg)
-        windSpeedTextView.text = "${weather.current.wind_speed}"
+        windSpeedTextView.text = DF.format(weather.current.wind_speed)
         descriptionTextView.text = weather.current.weather[0].description
+    }
+
+    // 한 시간 강수량 데이터
+    private fun rain_onehour(weather: WeatherDTO) : String{
+        var rain_sum : Double = 0.0
+        for (i : Int in 0..59){
+            rain_sum += weather.minutely?.get(i)?.precipitation ?: 0.0
+        }
+        if (rain_sum == 0.0) return "-"
+        return rain_sum.toString()
     }
 
     // ● 데이터 없으면 UI 업데이트
@@ -407,10 +387,10 @@ class HomeTopFragment : Fragment() {
                     currentAddress = getLocationStr(latitude, longitude)
 
                     // 위도, 경도, 주소명 저장
-                    saveStringInPreferences("latitude", "$latitude")
-                    saveStringInPreferences("longitude", "$longitude")
-                    saveStringInPreferences("address", addressTrim(currentAddress!!)) // 짧은 주소 저장
-                    saveStringInPreferences("addressLong", currentAddress!!.replace("대한민국 ", "")) // 좀 더 긴 주소 저장
+                    saveStringInPreferences("latitude_cur", "$latitude")
+                    saveStringInPreferences("longitude_cur", "$longitude")
+                    saveStringInPreferences("address_cur", addressTrim(currentAddress!!)) // 짧은 주소 저장
+                    saveStringInPreferences("addressLong_cur", currentAddress!!.replace("대한민국 ", "")) // 좀 더 긴 주소 저장
 
                     // 위도, 경도, 주소 Log 찍기
                     Log.d("JOO_HomeTopF_현재위치 가져오기:", "$latitude, $longitude")

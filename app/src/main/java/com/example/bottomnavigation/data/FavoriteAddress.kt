@@ -8,7 +8,7 @@ data class FavoriteAddress(
     val title : String,
     val descr : String,
     val isBookmarked: Boolean,
-    var isChecked: Boolean = false, //기본값 false
+    var isChecked: Boolean,
 ){
     @PrimaryKey(autoGenerate = true) var id: Int = 0 // DB 인덱스, 자동생성
 }

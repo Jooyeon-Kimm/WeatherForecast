@@ -22,12 +22,23 @@ class SharedWeatherViewModel : ViewModel() {
     val dailyWeatherItems = MutableLiveData<List<DailyWeatherItem>>() // HomeBottomFrame의 일간 날씨 리스트
     val weatherDescription = MutableLiveData<String>()
     val currentLocation: MutableLiveData<String> = MutableLiveData()
+    val currentLocationLong:MutableLiveData<String> = MutableLiveData()
     private val _isBookmarked = MutableLiveData<Boolean>()
     val isBookmarked: LiveData<Boolean> = _isBookmarked
     private val _addresses = MutableLiveData<List<FavoriteAddress>>()
     val addresses: LiveData<List<FavoriteAddress>> = _addresses
-    private val _currentLocation = MutableLiveData<String>()
+    val latitude = MutableLiveData<String>()
+    val longitude = MutableLiveData<String>()
+    val address = MutableLiveData<String>()
+    val addressLong = MutableLiveData<String>()
 
+    // 데이터 업데이트 메서드
+    fun updateLocationData(lat: String, lon: String, addr: String, addrLong: String) {
+        latitude.value = lat
+        longitude.value = lon
+        address.value = addr
+        addressLong.value = addrLong
+    }
 
     // 북마크 상태 업데이트
     fun updateBookmarkState(location: String, isBookmarked: Boolean) {
@@ -125,7 +136,7 @@ class SharedWeatherViewModel : ViewModel() {
     }
 
     fun updateLocation(location: String) {
-        _currentLocation.value = location
+        currentLocation.value = location
     }
 
 

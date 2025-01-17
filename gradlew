@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bienv sh
 
 #
 # Copyright 2015 the original author or authors.

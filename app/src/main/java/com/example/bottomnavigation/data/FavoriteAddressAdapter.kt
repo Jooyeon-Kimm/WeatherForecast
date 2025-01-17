@@ -30,7 +30,11 @@ class FavoriteAddressAdapter(private var items: MutableList<FavoriteAddress>)
         fun bind(item: FavoriteAddress) {
             binding.addressTitle.text = item.title
             binding.addressDescr.text = item.descr
-            val checkBox: CheckBox = binding.itemCheckBox
+            binding.itemCheckBox.isChecked = item.isChecked
+
+            binding.itemCheckBox.setOnCheckedChangeListener { _, isChecked ->
+                item.isChecked = isChecked
+            }
         }
     }
 }
