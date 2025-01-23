@@ -11,29 +11,9 @@
         android:layout_marginLeft="@dimen/_10sdp"
         android:textSize="@dimen/_15sdp"
         android:layout_marginTop="@dimen/_20sdp"
-        android:text="일별예보 ("
+        android:text="일별예보"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
-
-    <!-- 현재 날짜 1.3 ~ 1.13 , 10일 월 넘어가면 그것도 업데이트 -->
-
-    <TextView
-        android:id="@+id/hourly_forecast_text2_date"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="1.3 ~ 1.13"
-        android:textSize="@dimen/_15sdp"
-        app:layout_constraintBottom_toBottomOf="@+id/hourly_forecast_text1"
-        app:layout_constraintStart_toEndOf="@id/hourly_forecast_text1" />
-
-    <TextView
-        android:id="@+id/hourly_forecast_text3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=")"
-        android:textSize="@dimen/_15sdp"
-        app:layout_constraintBottom_toBottomOf="@+id/hourly_forecast_text1"
-        app:layout_constraintStart_toEndOf="@id/hourly_forecast_text2_date" />
 
     <!-- Constraint Layout에서 divider 만들고 싶으면, 높이를 1dp로 -->
     <View
@@ -42,15 +22,36 @@
         android:layout_height="2dp"
         android:background="@color/blue"
         android:layout_marginTop="@dimen/_10sdp"
-        app:layout_constraintTop_toBottomOf="@id/hourly_forecast_text3"
+        app:layout_constraintTop_toBottomOf="@id/hourly_forecast_text1"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/linearLayoutFHB"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/dividerTop"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/dayText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/_12sdp"
+            android:text="요일"
+           android:visibility="invisible"
+            android:textSize="@dimen/_12sdp"
+            android:layout_weight="1"
+            app:layout_constraintTop_toBottomOf="@+id/dividerTop"
+            app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/hourly_forecast_text_AM"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="오전"
+        android:layout_marginLeft="@dimen/_30sdp"
+        android:text="오전강수"
+        android:layout_weight="1"
         android:textSize="@dimen/_12sdp"
         app:layout_constraintTop_toBottomOf="@+id/dividerTop"
         app:layout_constraintStart_toStartOf="parent" />
@@ -59,8 +60,8 @@
         android:id="@+id/hourly_forecast_text_PM"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="오후"
-        android:layout_marginStart="@dimen/_40sdp"
+        android:text="오후강수"
+        android:layout_weight="1"
         android:textSize="@dimen/_12sdp"
         app:layout_constraintTop_toBottomOf="@+id/dividerTop"
         app:layout_constraintStart_toEndOf="@id/hourly_forecast_text_AM" />
@@ -69,8 +70,8 @@
         android:id="@+id/hourly_forecast_text_min"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="최저"
-        android:layout_marginStart="@dimen/_20sdp"
+        android:text="최저온도"
+        android:layout_weight="1"
         android:textSize="@dimen/_12sdp"
         app:layout_constraintTop_toBottomOf="@+id/dividerTop"
         app:layout_constraintStart_toEndOf="@id/hourly_forecast_text_PM" />
@@ -79,13 +80,13 @@
         android:id="@+id/hourly_forecast_text_max"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="최고"
-        android:layout_marginStart="@dimen/_20sdp"
+        android:text="최고온도"
+        android:layout_weight="1"
         android:textSize="@dimen/_12sdp"
         app:layout_constraintTop_toBottomOf="@+id/dividerTop"
         app:layout_constraintStart_toEndOf="@id/hourly_forecast_text_min" />
 
-    <!-- 아래 divider -->
+    </LinearLayout>
     <!-- 아래 divider -->
     <View
         android:id="@+id/dividerBottom"
@@ -93,9 +94,11 @@
         android:layout_height="2dp"
         android:background="@color/blue"
         android:layout_marginTop="@dimen/_5sdp"
-        app:layout_constraintTop_toBottomOf="@id/hourly_forecast_text_max"
+        app:layout_constraintTop_toBottomOf="@id/linearLayoutFHB"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
+
 
     <!-- 매일 날씨 정보 담을, 리사이클러 뷰 -->
     <androidx.recyclerview.widget.RecyclerView
@@ -103,7 +106,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    app:layout_constraintTop_toBottomOf="@id/dividerBottom"
+    app:layout_constraintTop_toBottomOf="@id/linearLayoutFHB"
     app:layout_constraintBottom_toBottomOf="parent">
 
 

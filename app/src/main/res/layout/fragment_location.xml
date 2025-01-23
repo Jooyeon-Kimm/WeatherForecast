@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".LocationFragment"
+    android:background="@color/white">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- Toolbar -->
+
+        <!-- Current Location Text -->
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbarLocation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:elevation="@dimen/_10sdp"
+            android:title="관심지역설정"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+            app:titleTextColor="@color/black">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="관심지역설정"
+                android:textColor="@color/black"
+                android:gravity="center"
+                android:textSize="30sp"/>
+        </androidx.appcompat.widget.Toolbar>
+
+        <TextView
+            android:id="@+id/LocationFragment_curLoc"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_30sdp"
+            android:textSize="25sp"
+            android:textColor="@color/black"
+            android:clickable="false"
+            android:gravity="center_vertical"
+            android:layout_marginLeft="@dimen/_10sdp"
+            android:text="현재 위치를 보여주는 텍스트뷰"
+            app:layout_constraintTop_toBottomOf="@id/toolbarLocation"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <TextView
+            android:id="@+id/bookmarked_locations"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/_10sdp"
+            android:text="※ 관심지역은 최대 10개까지 등록이 가능합니다."
+            android:textSize="20sp"
+            app:layout_constraintTop_toBottomOf="@id/LocationFragment_curLoc"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/checkbox_title_linearLayout"
+            app:layout_constraintTop_toBottomOf="@id/bookmarked_locations"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="8dp">
+
+            <!-- 체크박스 -->
+            <CheckBox
+                android:id="@+id/selectAllCheckBox"
+                android:layout_width="48dp"
+                android:layout_marginLeft="@dimen/_4sdp"
+                android:layout_height="wrap_content"
+                android:scaleX="2"
+                android:scaleY="2"/>
+
+            <TextView
+                android:id="@+id/selectAllButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="전체선택"
+                android:layout_gravity="center_vertical"
+                android:textSize="20sp"
+                android:textColor="@color/black"/>
+
+            <!-- 체크박스 버튼 좌측, 우측 정렬하고 싶을 때: 중간에 View 추가-->
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/deleteBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="선택 삭제"
+                android:textSize="20sp"
+                android:layout_gravity="right"
+                android:theme="@style/Theme.AppCompat"
+                android:backgroundTint="#9999A1"/>
+
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView_bookMarked"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/checkbox_title_linearLayout"
+            app:layout_constraintVertical_bias="0.0"
+            tools:layout_editor_absoluteX="0dp">
+
+        </androidx.recyclerview.widget.RecyclerView>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>

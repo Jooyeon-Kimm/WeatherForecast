@@ -26,7 +26,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <!-- 날짜와 시간 -->
+            <!-- 날짜와 시간 01.03.(금) 14:11 -->
             <TextView
                 android:id="@+id/fragmentHome_textViewDateNTime"
                 android:layout_width="wrap_content"
@@ -34,7 +34,7 @@
                 android:layout_marginLeft="@dimen/_16sdp"
                 android:textSize="@dimen/_16sdp"
                 android:textColor="@color/white"
-                android:text="01.03.(금) 14:11" />
+                android:text="-" />
 
 
         </LinearLayout>
@@ -60,12 +60,13 @@
                 android:src="@drawable/location"
                 android:background="@android:color/transparent"/>
 
+            <!-- 대구광역시 상중이동 서구 -->
             <TextView
                 android:id="@+id/fragmentHomeTop_textViewCurrLocation"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/_12sdp"
-                android:text="대구광역시 서구 상중이동"
+                android:text="-"
                 android:layout_weight="1"
                 android:textSize="@dimen/_14sdp"
                 android:textColor="@color/white"
@@ -104,12 +105,13 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/fragmentHome_linearLayoutSecond">
 
+            <!-- 3.9도 -->
             <TextView
                 android:id="@+id/fragmentHomeTop_textViewTemperature"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="3.9"
+                android:text="-"
                 android:textColor="@color/white"
                 android:visibility="visible"
                 android:textSize="@dimen/_90sdp"
@@ -129,15 +131,16 @@
                 app:layout_constraintStart_toEndOf="@id/fragmentHomeTop_textViewTemperature"
                 app:layout_constraintTop_toTopOf="parent" />
 
+            <!-- 어제보다 4°C 낮아요-->
             <TextView
                 android:id="@+id/fragmentHome_textViewTemperatureExplain"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="어제보다 4°C 낮아요"
+                android:text="-"
                 android:textColor="@color/white"
                 android:textSize="@dimen/_20sdp"
-                app:layout_constraintEnd_toEndOf="@+id/fragmentHome_textViewTemperatureUnit"
+                app:layout_constraintEnd_toEndOf="@+id/fragmentHome_constraintLayoutFirst"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/fragmentHomeTop_textViewTemperature" />
 
@@ -146,10 +149,11 @@
                 android:id="@+id/fragmentHome_LinearLayoutInfo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_30sdp"
+                android:layout_marginTop="36dp"
                 android:orientation="horizontal"
 
-                app:layout_constraintTop_toBottomOf="@+id/fragmentHome_textViewTemperatureExplain">
+                app:layout_constraintTop_toBottomOf="@+id/fragmentHome_textViewTemperatureExplain"
+                tools:layout_editor_absoluteX="0dp">
 
                 <include layout="@layout/item_temp" />
 
@@ -162,8 +166,7 @@
                 <FrameLayout
                     android:id="@+id/fragmentContainer"
                     android:layout_width="match_parent"
-                    android:layout_height="0dp">
-                </FrameLayout>
+                    android:layout_height="0dp"></FrameLayout>
 
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>

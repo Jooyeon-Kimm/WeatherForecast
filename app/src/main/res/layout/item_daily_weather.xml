@@ -5,6 +5,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
+    <!--구분선-->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -15,15 +16,17 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:orientation="vertical">
+
             <TextView
                 android:id="@+id/dateDayofWeek"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/_20sdp"
                 android:text="화"
-                android:textSize="@dimen/_12sdp"
-                android:textColor="#000"/>
+                android:textColor="#000"
+                android:textSize="@dimen/_12sdp" />
 
             <TextView
                 android:id="@+id/dateNum"
@@ -35,65 +38,54 @@
                 android:textSize="@dimen/_8sdp" />
         </LinearLayout>
 
-        <!--[오전] 날씨 아이콘-->
-        <ImageView
-            android:id="@+id/weatherAM"
-            android:layout_width="@dimen/_12sdp"
-            android:layout_height="@dimen/_12sdp"
-            android:layout_marginLeft="@dimen/_12sdp"
-            android:src="@drawable/wi_day_sunny"/>
 
         <!--[오전] 강수확률-->
         <TextView
             android:id="@+id/rainAM"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:layout_marginLeft="@dimen/_12sdp"
             android:text="0%"
-            android:textSize="@dimen/_12sdp"
-            android:textColor="#000"/>
+            android:textColor="#000"
+            android:textSize="@dimen/_12sdp" />
 
-        <!--[오후] 날씨 아이콘-->
-        <ImageView
-            android:id="@+id/weatherPM"
-            android:layout_width="@dimen/_12sdp"
-            android:layout_height="@dimen/_12sdp"
-            android:layout_marginLeft="@dimen/_12sdp"
-            android:src="@drawable/wi_cloud"/>
 
         <!--[오후] 강수확률-->
         <TextView
             android:id="@+id/rainPM"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:layout_marginLeft="@dimen/_12sdp"
             android:text="30%"
-            android:textSize="@dimen/_12sdp"
-            android:textColor="#000"/>
+            android:textColor="#000"
+            android:textSize="@dimen/_12sdp" />
 
-        <!-- 최저 -->
+        <!--  -->
         <TextView
             android:id="@+id/temp_min"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:layout_marginLeft="@dimen/_12sdp"
             android:text="-3°"
-            android:textSize="@dimen/_12sdp"
-            android:textColor="@color/recyclerViewItem_blue"/>
+            android:textColor="@color/recyclerViewItem_blue"
+            android:textSize="@dimen/_12sdp" />
 
         <!-- 최고 -->
         <TextView
             android:id="@+id/temp_max"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:layout_marginLeft="@dimen/_12sdp"
             android:text="4°"
-            android:textSize="@dimen/_12sdp"
-            android:textColor="@color/recyclerViewItem_red"/>
+            android:textColor="@color/recyclerViewItem_red"
+            android:textSize="@dimen/_12sdp" />
 
     </LinearLayout>
 
-    <!--구분선-->
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"

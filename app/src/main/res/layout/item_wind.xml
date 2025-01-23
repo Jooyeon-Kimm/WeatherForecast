@@ -16,21 +16,24 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
+
+        <!-- 북동 -->
         <TextView
             android:id="@+id/weatherItem_windDir"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="서"
+            android:text="-"
             android:textColor="@color/white"
             android:textSize="@dimen/_15sdp"
             android:textStyle="bold"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
+        <!-- 2.3 m/s -->
         <TextView
             android:id="@+id/weatherItem_windNum"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="2.3"
+            android:text="-"
             android:textColor="@color/white"
             android:textSize="@dimen/_10sdp"
             android:textStyle="bold"

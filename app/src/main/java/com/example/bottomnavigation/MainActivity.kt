@@ -1,6 +1,7 @@
 package com.example.bottomnavigation
 
 
+import FavoriteAddressAdapter
 import android.Manifest
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
@@ -9,17 +10,22 @@ import android.location.Geocoder
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
+import android.widget.CheckBox
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
+import com.example.bottomnavigation.data.FavoriteAddress
 import com.example.bottomnavigation.databinding.ActivityMainBinding
 import com.example.bottomnavigation.models.SharedWeatherViewModel
 import com.example.bottomnavigation.ui.ViewPagerTopBottomAdapter
+import com.example.bottomnavigation.ui.home.HomeFragment
+import com.example.bottomnavigation.ui.home.HomeTopFragment
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -35,35 +41,51 @@ class MainActivity : AppCompatActivity() {
     /*** binding & MainActivity ***/
     private lateinit var binding: ActivityMainBinding
     private lateinit var providerClient: FusedLocationProviderClient
-    private val weatherService = RetrofitFactory
-    private lateinit var adapter: ViewPagerTopBottomAdapter
-    var currentThemeID: Int?= null // 현재 테마
-
-
+    private lateinit var adapter: FavoriteAddressAdapter
+    private var addrList: MutableList<FavoriteAddress> = mutableListOf()
 
     // 위치 권한 요청 코드
     companion object { private const val PERMISSION_REQUEST_ACCESS_FINE_LOCATION = 101 }
     val sharedWeatherViewModel: SharedWeatherViewModel by viewModels()
 
+
+    // ■ 액티비티 생성되면
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d("LC_MA", "onCreate: MainActivity")
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
 
+        adapter = FavoriteAddressAdapter(addrList){
+            checkIfAllItemsAreChecked()
+        }
+        sharedWeatherViewModel.loadAddresses(this)
 
 
         /***********코드************/
         // 1분마다 사용자 위치 얻기
         // 위치 정보 클라이언트 초기화
-        providerClient = LocationServices.getFusedLocationProviderClient(this)
-        startSavingLocationData()
+//        providerClient = LocationServices.getFusedLocationProviderClient(this)
+//        startSavingLocationData()
 
-        // Bottom Navigation View
-        val navView: BottomNavigationView = binding.navView
-        val navController = findNavController(R.id.nav_host_fragment_activity_main)
-        navView.setupWithNavController(navController)
+        // HomeTopFragment를 초기 화면으로 설정
+        if (savedInstanceState == null) { // 기존에 저장된 상태가 없을 때만 실행
+            val homeFragment = HomeFragment()
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.mainActivityFragment, homeFragment) // mainActivityFragment에 HomeTopFragment 표시
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE) // 전환 애니메이션(optional)
+                .commit()
+        }
 
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.d("LC_MainActivity", "onStop : MainActivity")
+
+        sharedWeatherViewModel.saveAddresses(this)
     }
 
 
@@ -93,9 +115,15 @@ class MainActivity : AppCompatActivity() {
                     val address = getLocationStr(latitude, longitude)
 
                     // 위도, 경도, 주소명 저장
-                    saveStringInPreferences("latitude", "$latitude")
-                    saveStringInPreferences("longitude", "$longitude")
-                    saveStringInPreferences("address", addressTrim(address)) // string 데이터 저장
+//                    saveStringInPreferences("latitude", "$latitude")
+//                    saveStringInPreferences("longitude", "$longitude")
+//                    saveStringInPreferences("address", addressTrim(address)) // string 데이터 저장
+//                    saveStringInPreferences("addressLong", address.replace("대한민국 ", ""))
+
+                    sharedWeatherViewModel.currentLatitude.value = latitude
+                    sharedWeatherViewModel.currentLongitude.value = longitude
+                    sharedWeatherViewModel.currentLocation.value = addressTrim(address)
+
 
                     // 위도, 경도, 주소 Log 찍기
                     Log.d("MainActivity_Location", "$latitude, $longitude") // 받아오는 것 확인함
@@ -167,8 +195,13 @@ class MainActivity : AppCompatActivity() {
             .replace("대한민국", "") // "대한민국" 제거
             .trim() // 앞뒤 공백 제거
             .split(" ") // 공백으로 분리
-            .take(4) // 최대 4개의 요소만 가져옴
+            .take(3) // 최대 3개의 요소만 가져옴
             .joinToString(" ") // 다시 공백으로 합침
+    }
+
+    fun checkIfAllItemsAreChecked() {
+        val isAllChecked = addrList.all { it.isChecked }
+        this.findViewById<CheckBox>(R.id.selectAllCheckBox).isChecked = isAllChecked
     }
 
 }
