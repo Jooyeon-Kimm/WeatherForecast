@@ -5,12 +5,10 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
 import com.example.bottomnavigation.R
-import com.example.bottomnavigation.SearchFragment
-import com.example.bottomnavigation.ui.ViewPagerTopBottomAdapter
+import com.example.bottomnavigation.adapter.ViewPagerTopBottomAdapter
 
 class HomeFragment : Fragment() {
     private lateinit var viewPager: ViewPager2

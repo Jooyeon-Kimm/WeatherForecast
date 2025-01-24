@@ -1,6 +1,5 @@
 package com.example.bottomnavigation.ui.home
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,7 +9,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.bottomnavigation.R
-import com.example.bottomnavigation.data.DailyWeatherAdapter
+import com.example.bottomnavigation.adapter.DailyWeatherAdapter
 import com.example.bottomnavigation.models.SharedWeatherViewModel
 
 class HomeBottomFragment : Fragment() {

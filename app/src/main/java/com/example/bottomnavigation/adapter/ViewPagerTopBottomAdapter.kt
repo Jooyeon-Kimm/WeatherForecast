@@ -1,22 +1,22 @@
-package com.example.bottomnavigation.ui
+package com.example.bottomnavigation.adapter
 
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.example.bottomnavigation.ui.home.HomeBottomFragment
-import com.example.bottomnavigation.ui.home.Hour1Fragment
-import com.example.bottomnavigation.ui.home.Hour3Fragment
+import com.example.bottomnavigation.ui.home.HomeFragment
+import com.example.bottomnavigation.ui.home.HomeTopFragment
 
-class TabFragmentAdapter(fa: HomeBottomFragment) : FragmentStateAdapter(fa) {
+class ViewPagerTopBottomAdapter(fa: HomeFragment) : FragmentStateAdapter(fa) {
     private val NUM_PAGES = 2  // 두 개의 페이지
 
     override fun createFragment(position: Int): Fragment {
         return when (position) {
-            0 -> Hour1Fragment()  // 1시간 간격
-            1 -> Hour3Fragment()  // 3시간 간격
+            0 -> HomeTopFragment()  // 상단 프래그먼트
+            1 -> HomeBottomFragment()  // 하단 프래그먼트
             else -> throw IllegalStateException("Unexpected position $position")
-
         }
     }
 
     override fun getItemCount(): Int = NUM_PAGES
+
 }

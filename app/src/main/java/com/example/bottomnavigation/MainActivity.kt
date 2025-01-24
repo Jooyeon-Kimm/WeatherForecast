@@ -18,17 +18,11 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.findNavController
-import androidx.navigation.ui.setupWithNavController
 import com.example.bottomnavigation.data.FavoriteAddress
 import com.example.bottomnavigation.databinding.ActivityMainBinding
 import com.example.bottomnavigation.models.SharedWeatherViewModel
-import com.example.bottomnavigation.ui.ViewPagerTopBottomAdapter
 import com.example.bottomnavigation.ui.home.HomeFragment
-import com.example.bottomnavigation.ui.home.HomeTopFragment
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.IOException

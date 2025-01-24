@@ -2,12 +2,14 @@ package com.example.bottomnavigation.ui.home
 
 import FavoriteAddressAdapter
 import android.Manifest
+import android.app.AlertDialog
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
+import android.net.ConnectivityManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -22,20 +24,17 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.RecyclerView
 import com.example.bottomnavigation.BuildConfig
-import com.example.bottomnavigation.LocationFragment
 import com.example.bottomnavigation.R
-import com.example.bottomnavigation.SearchFragment
-import com.example.bottomnavigation.data.FavoriteAddress
 import com.example.bottomnavigation.models.SharedWeatherViewModel
 import com.example.bottomnavigation.data.WeatherDTO
+import com.example.bottomnavigation.models.RetrofitFactory
 import com.example.bottomnavigation.models.WeatherService
+import com.example.bottomnavigation.ui.bookmark.BookmarkFragment
+import com.example.bottomnavigation.ui.search.SearchFragment
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import retrofit2.Call
@@ -52,7 +51,6 @@ class HomeTopFragment : Fragment() {
     private lateinit var adapter: FavoriteAddressAdapter
 
     private val sharedWeatherViewModel: SharedWeatherViewModel by activityViewModels()
-    private var currentAddress: String? = null
     private lateinit var providerClient: FusedLocationProviderClient
     private var updateHandler = Handler(Looper.getMainLooper())
     private lateinit var updateRunnable: Runnable
@@ -67,8 +65,6 @@ class HomeTopFragment : Fragment() {
     private lateinit var locationButton: TextView
     private lateinit var searchButton : ImageButton
     private lateinit var bookmarkButton: ImageButton
-    private var latitude: Double = 0.0
-    private var longitude: Double = 0.0
     private var lastMinute: Int = -1
 
 
@@ -90,7 +86,7 @@ class HomeTopFragment : Fragment() {
 
         // 위치 > 날씨 > 시간 업데이트
         providerClient = LocationServices.getFusedLocationProviderClient(requireContext())
-        getLocationData()
+        initLocationUpdater()
         startUpdatingDateTime()
         observeLocationChanges()
     }
@@ -100,8 +96,18 @@ class HomeTopFragment : Fragment() {
     // 다시 HomeTopFragmet 가면, onPause()였다가 onResume()인 듯
     override fun onResume() {
         super.onResume()
+        updateHandler.post(updateRunnable)
         Log.d("LC_HTF", "onResume: HomeTopFragment")
 
+    }
+    private fun initLocationUpdater() {
+        updateRunnable = object : Runnable {
+            override fun run() {
+                getLocationData()
+                updateHandler.postDelayed(this, 60000)
+                Toast.makeText(requireActivity(), "데이터가 업데이트 되었습니다.", Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
     // ■
@@ -109,8 +115,9 @@ class HomeTopFragment : Fragment() {
         super.onPause()
         Log.d("LC_HTF", "onPause: HomeTopFragment")
         // Fragment가 보이지 않을 때 갱신 중단
-        // updateHandler.removeCallbacks(updateRunnable)
+         updateHandler.removeCallbacks(updateRunnable)
     }
+
 
     // ■
     override fun onDestroyView() {
@@ -119,8 +126,9 @@ class HomeTopFragment : Fragment() {
 
         // 뷰가 파괴될 때 업데이트 중단
         stopUpdatingDateTime()
+        updateHandler.removeCallbacks(updateRunnable)
+        Log.d("LC_savedLocations", "저장되었습니다. ${sharedWeatherViewModel.currentLocation.value}")
     }
-
 
 
     // ● 뷰 셋
@@ -164,9 +172,9 @@ class HomeTopFragment : Fragment() {
         // 지역 버튼 클릭하면, 즐겨찾기 페이지로
         locationButton.setOnClickListener {
             Log.d("JOO", "Location TextView Clicked")
-            val locationFragment = LocationFragment()
+            val bookmarkFragment = BookmarkFragment()
             requireActivity().supportFragmentManager.beginTransaction()
-                .replace(R.id.fragmentHomeFrameLayout, locationFragment, "LOCATION_FRAGMENT")
+                .replace(R.id.fragmentHomeFrameLayout, bookmarkFragment, "LOCATION_FRAGMENT")
                 .addToBackStack(null)  // 뒤로 가기 스택
                 .commit()
         }
@@ -241,17 +249,7 @@ class HomeTopFragment : Fragment() {
     }
 
 
-    // ● 주기적 날씨 업데이트
-    private fun setupWeatherUpdate() {
-        updateRunnable = Runnable {
-            latitude = sharedWeatherViewModel.currentLatitude.value?.toDouble() ?: 0.0
-            longitude = sharedWeatherViewModel.currentLatitude.value?.toDouble() ?: 0.0
-            Log.d("LatJoo", latitude.toString() +","+longitude)
-            fetchWeatherData(latitude, longitude)
-//            updateHandler.postDelayed(updateRunnable, 60000)  // 1분 후에 다시 실행 (테스트: 1초)
-        }
-        updateHandler.post(updateRunnable)  // 처음 실행
-    }
+
 
     // ● 시간 주기적 업데이트
     private fun startUpdatingDateTime() {
@@ -279,7 +277,8 @@ class HomeTopFragment : Fragment() {
     // ● 날씨 데이터 받아오기 (패치)
     private fun fetchWeatherData(latitude: Double, longitude: Double) {
         val weatherService = RetrofitFactory.getInstance().create(WeatherService::class.java)
-        val call = weatherService.getWeather(latitude, longitude, BuildConfig.API_KEY_CURRENT_WEATHER, "metric")
+        val call = weatherService.getWeather(latitude, longitude,
+            BuildConfig.API_KEY_CURRENT_WEATHER, "metric")
 
         call.enqueue(object : Callback<WeatherDTO> {
             override fun onResponse(call: Call<WeatherDTO>, response: Response<WeatherDTO>) {
@@ -328,6 +327,18 @@ class HomeTopFragment : Fragment() {
             windDirectionTextView.text = windDirConvert(weather.current.wind_deg)
             windSpeedTextView.text = df.format(weather.current.wind_speed)
             descriptionTextView.text = weather.current.weather[0].description
+
+
+            // sharedPreferences에 저장
+            sharedPreferences.edit().apply {
+                putString("lastTemperature", df.format(weather.current.temp).toString())
+                putString("lastTempFeel", df.format(weather.current.feels_like))
+                putString("lastHumidity", "${weather.current.humidity}")
+                putString("lastRain", precipitationTextView.text.toString())
+                putString("lastWindDir", windDirConvert(weather.current.wind_deg))
+                putString("lastWindSpeed", df.format(weather.current.wind_speed))
+                putString("lastDescription", weather.current.weather[0].description)
+            }
         }
     }
 
@@ -383,55 +394,70 @@ class HomeTopFragment : Fragment() {
         updateHandler.removeCallbacksAndMessages(null)
     }
 
-    // ●위치정보 1분마다 가져오기
-    private fun startFetchingLocationData() {
-        lifecycleScope.launch {
-            while (true) {
-                getLocationData()
-                delay(60000L) // 1분 대기
+
+    // ● 위치정보 가져오기
+    private fun getLocationData() {
+        when {
+            ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                // 권한이 허용된 경우
+                providerClient.lastLocation.addOnSuccessListener { location ->
+                    if (location != null) {
+                        // 위치 데이터가 존재하는 경우, 정보 처리
+                        processLocationData(location)
+                    }
+                }
+            }
+            ActivityCompat.shouldShowRequestPermissionRationale(
+                requireActivity(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) -> {
+                // 권한을 이전에 "허용하지 않음" 선택한 경우
+                Log.d("LC_PermissionRequest", "권한 거부됨, 다시 요청 필요.")
+                requestLocationPermission() // 권한 요청
+            }
+            else -> {
+                // "이번에만 허용" 또는 권한 요청이 필요한 상황
+                Log.d("LC_PermissionRequest", "권한이 없거나 이번에만 허용됨, 요청 필요.")
+                requestLocationPermission() // 권한 요청
+
             }
         }
     }
 
-    // ● 위치정보 가져오기
-    private fun getLocationData() {
-        if (ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            providerClient.lastLocation.addOnSuccessListener { location ->
-                if (location != null) {
-                    val latitude = location.latitude
-                    val longitude = location.longitude
-                    currentAddress = getLocationStr(latitude, longitude)
 
-                    // 위도, 경도, 주소명 저장
-//                    saveStringInPreferences("latitude", "$latitude")
-//                    saveStringInPreferences("longitude", "$longitude")
-//                    saveStringInPreferences("address", addressTrim(currentAddress!!)) // 짧은 주소 저장
-//                    saveStringInPreferences("addressLong", currentAddress!!.replace("대한민국 ", "")) // 좀 더 긴 주소 저장
+    private fun processLocationData(location: Location) {
+        val latitude = location.latitude
+        val longitude = location.longitude
+        val address = getLocationStr(latitude, longitude)
 
-                    sharedWeatherViewModel.currentLatitude.value = latitude
-                    sharedWeatherViewModel.currentLongitude.value = longitude
-                    sharedWeatherViewModel.currentLocation.value = addressTrim(currentAddress!!)
+        sharedWeatherViewModel.currentLatitude.value = latitude
+        sharedWeatherViewModel.currentLongitude.value = longitude
+        sharedWeatherViewModel.currentLocation.value = addressTrim(address)
 
-                    // 위도, 경도, 주소 Log 찍기
-                    Log.d("JOO_HomeTopF_현재위치 가져오기:", "$latitude, $longitude")
-                    Log.d("JOO_HomeTopF_현재위치 가져오기:", currentAddress!!)
-                    Log.d("JOO_HomeTopF_상세위치 가져오기:", currentAddress!!.replace("대한민국 ", ""))
+        // 날씨 정보 및 북마크 업데이트
+        fetchWeatherData(latitude, longitude)
+        fetchBookmarkData(addressTrim(address))
+    }
 
-                    // 날씨 정보 업데이트
-                    fetchWeatherData(latitude, longitude)
 
-                    // 북마크 버튼 업데이트
-                    fetchBookmarkData(addressTrim(currentAddress!!))
-                } else {
-                    Log.d("HomeTopFragment", "Location is null")
+    private fun requestLocationPermission() {
+        if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
+            // 사용자에게 권한 필요성 설명 후 권한 요청
+            AlertDialog.Builder(requireContext())
+                .setTitle("위치 권한 필요")
+                .setMessage("이 앱에서는 위치 정보가 필요합니다. 위치 권한을 허용해주세요.")
+                .setPositiveButton("확인") { _, _ ->
+                    ActivityCompat.requestPermissions(
+                        requireActivity(),
+                        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                        PERMISSION_REQUEST_ACCESS_FINE_LOCATION
+                    )
                 }
-            }.addOnFailureListener {
-                Log.d("HomeTopFragment", "Failed to get location")
-            }
+                .setNegativeButton("취소", null)
+                .show()
         } else {
             // 권한 요청
             ActivityCompat.requestPermissions(
@@ -442,8 +468,9 @@ class HomeTopFragment : Fragment() {
         }
     }
 
+
     // ● (경도, 위도) 지오코더로 (주소명)으로
-    private fun getLocationStr(lat: Double, lng: Double): String {
+    fun getLocationStr(lat: Double, lng: Double): String {
         var nowAddr = "현재 위치를 확인 할 수 없습니다."
         val geocoder = Geocoder(requireContext(), Locale.KOREA)
         try {
@@ -472,7 +499,7 @@ class HomeTopFragment : Fragment() {
     }
 
     // ● 대한민국 글자 제거하고 3개 단어만 들고오기
-    private fun addressTrim(address: String): String {
+    fun addressTrim(address: String): String {
         return address
             .replace("대한민국", "") // "대한민국" 제거
             .trim() // 앞뒤 공백 제거
@@ -523,6 +550,11 @@ class HomeTopFragment : Fragment() {
 
     }
 
+    fun isOnline(context: Context): Boolean {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val networkInfo = connectivityManager.activeNetworkInfo
+        return networkInfo?.isConnectedOrConnecting == true
+    }
 
 
 

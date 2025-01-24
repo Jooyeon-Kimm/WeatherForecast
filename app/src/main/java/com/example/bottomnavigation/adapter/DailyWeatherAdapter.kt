@@ -1,9 +1,10 @@
-package com.example.bottomnavigation.data
+package com.example.bottomnavigation.adapter
 
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.bottomnavigation.R
 import android.view.LayoutInflater
+import com.example.bottomnavigation.data.DailyWeatherItem
 import com.example.bottomnavigation.models.DailyWeatherViewHolder
 
 

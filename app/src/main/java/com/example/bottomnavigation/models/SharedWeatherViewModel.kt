@@ -23,6 +23,8 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 
+// 날씨 데이터, 북마크 아이템 (addresses)
+// 앱 실행 중 변경이 잦은 데이터들
 class SharedWeatherViewModel(application: Application) : AndroidViewModel(application){
     val weatherData = MutableLiveData<WeatherDTO>() // 메인 페이지의 현재 날씨 데이터 1개
     val dailyWeatherItems = MutableLiveData<List<DailyWeatherItem>>() // HomeBottomFrame의 일간 날씨 리스트
@@ -41,6 +43,7 @@ class SharedWeatherViewModel(application: Application) : AndroidViewModel(applic
     }
 
 
+    // sharedPreferences에 북마크된 장소들 저장
     private fun loadAddresses() {
         val addressesJson = sharedPreferences.getString("savedAddresses", null) // 저장된 JSON 가져오기
         if (addressesJson != null) {
@@ -163,14 +166,14 @@ class SharedWeatherViewModel(application: Application) : AndroidViewModel(applic
 
     // Unix 시간 : 1970년 1월 1일 00:00 UTC로부터 경과한 시간 (단위: 초)
     // 날짜가져오기 (Unix에서 LocalDate형)
-    fun convertUnixTimeToLocalDate(unixTime: Long): LocalDate {
+    private fun convertUnixTimeToLocalDate(unixTime: Long): LocalDate {
         return Instant.ofEpochSecond(unixTime) // Unix timestamp를 Instant로 변경
             .atZone(ZoneId.systemDefault()) // system default time zone
             .toLocalDate() // LocalDate 로 변경
     }
 
     // 날짜 형식 적용 String 반환
-    fun convertUnixTimeToFormattedDate(unixTime: Long): String {
+    private fun convertUnixTimeToFormattedDate(unixTime: Long): String {
         val formatter = DateTimeFormatter.ofPattern("MM/dd")  // 원하는 날짜 형식 설정
         return Instant.ofEpochSecond(unixTime)
             .atZone(ZoneId.systemDefault())
@@ -178,7 +181,7 @@ class SharedWeatherViewModel(application: Application) : AndroidViewModel(applic
     }
 
     // Unix 시간 > 요일
-    fun getDayOfWeek(unixSeconds: Long): String {
+    private fun getDayOfWeek(unixSeconds: Long): String {
         val formatter = DateTimeFormatter.ofPattern("EEEE") // 데이터 형식
         val engDayofWeek = Instant.ofEpochSecond(unixSeconds)
             .atZone(ZoneId.systemDefault())

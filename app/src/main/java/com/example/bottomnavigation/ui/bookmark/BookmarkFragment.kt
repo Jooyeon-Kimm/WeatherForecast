@@ -1,4 +1,4 @@
-package com.example.bottomnavigation
+package com.example.bottomnavigation.ui.bookmark
 
 
 import FavoriteAddressAdapter
@@ -12,23 +12,23 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.bottomnavigation.R
 import com.example.bottomnavigation.data.FavoriteAddress
-import com.example.bottomnavigation.databinding.FragmentLocationBinding
+import com.example.bottomnavigation.databinding.FragmentBookmarkBinding
 import com.example.bottomnavigation.models.SharedWeatherViewModel
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
-class LocationFragment : Fragment() {
+class BookmarkFragment : Fragment() {
     private val sharedWeatherViewModel: SharedWeatherViewModel by activityViewModels()
     private lateinit var sharedPreferences: SharedPreferences
-    private var _binding: FragmentLocationBinding? = null
+    private var _binding: FragmentBookmarkBinding? = null
     private val binding get() = _binding!!
     private lateinit var adapter: FavoriteAddressAdapter
     private var addrList: MutableList<FavoriteAddress> = mutableListOf()
@@ -45,7 +45,7 @@ class LocationFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         Log.d("LC_LF", "onCreateView: LocationFragment")
-        _binding = FragmentLocationBinding.inflate(inflater, container, false)
+        _binding = FragmentBookmarkBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -170,15 +170,6 @@ class LocationFragment : Fragment() {
         }
     }
 
-    fun fetchBookmarkData(currentAddress : String){
-        val isBookmarked = sharedWeatherViewModel.isAddressBookmarked(currentAddress)
-        Log.d("JOONewLocation_fetchbm", "$isBookmarked, $currentAddress")
-        if(isBookmarked){
-            updateBookmarkIcon(true)
-        }else{
-            updateBookmarkIcon(false)
-        }
-    }
 
     // ● 북마크아이콘
     private fun updateBookmarkIcon(isBookmarked: Boolean) {

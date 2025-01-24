@@ -1,7 +1,6 @@
-package com.example.bottomnavigation
+package com.example.bottomnavigation.ui.search
 
 import android.annotation.SuppressLint
-import android.content.SharedPreferences
 import android.location.Geocoder
 import android.location.Location
 import android.os.Bundle
@@ -13,21 +12,12 @@ import android.webkit.JavascriptInterface
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import android.widget.ImageButton
 import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
-import android.widget.Toolbar
-import androidx.appcompat.app.AppCompatActivity.MODE_PRIVATE
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import com.example.bottomnavigation.data.WeatherDTO
 import com.example.bottomnavigation.databinding.FragmentSearchBinding
 import com.example.bottomnavigation.models.SharedWeatherViewModel
-import com.example.bottomnavigation.models.WeatherService
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import java.util.Locale
 
 
@@ -102,13 +92,9 @@ class SearchFragment : Fragment() {
             // 프래그먼트 종료
             requireActivity().supportFragmentManager.popBackStack()
 
-
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-    }
 
 
 
