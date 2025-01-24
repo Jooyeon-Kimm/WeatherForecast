@@ -11,9 +11,9 @@ Gradle Scripts에 API KEY 발급받아 넣어주기
 local.prooperties (SDK Location)  
 ![local_properties](https://github.com/user-attachments/assets/1fc1f153-029f-4844-b76c-797c35377311)  
 
-이 앱은 "Open Weather Map API KEY" 가 필요
+이 앱은 "Open Weather Map API KEY" 가 필요  
 3.0 ver, One Call API 키가 필요
 
 
-git 상태
+git 상태  
 ![git상태](https://github.com/user-attachments/assets/f74afad6-d021-41cb-a256-77499fe6fde7)
