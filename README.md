@@ -2,9 +2,6 @@
 ☀️ 
 날씨예보앱  
 https://youtube.com/shorts/0PDh_mkM36E
-
-
-☀️  
 main branch의 zip파일 다운받아 실행 가능  
   
 ☀️  
@@ -13,6 +10,11 @@ Gradle Scripts에 API KEY 발급받아 넣어주기
 
 local.prooperties (SDK Location)  
 ![local_properties](https://github.com/user-attachments/assets/1fc1f153-029f-4844-b76c-797c35377311)  
+
+☀️  
+Open Weather Map API KEY 발급  
+https://openweathermap.org/api  
+
 
 ☀️  
 혹시 테스트해보고 싶은 분  
