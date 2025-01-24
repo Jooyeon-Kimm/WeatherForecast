@@ -6,11 +6,11 @@ https://youtube.com/shorts/0PDh_mkM36E
 
 ☀️  
 main branch의 zip파일 다운받아 실행 가능  
-![그래들](https://github.com/user-attachments/assets/34fe7a46-1ae1-4075-acdc-17e65ae66b29)  
-
   
 ☀️  
 Gradle Scripts에 API KEY 발급받아 넣어주기  
+![그래들](https://github.com/user-attachments/assets/34fe7a46-1ae1-4075-acdc-17e65ae66b29)  
+
 local.prooperties (SDK Location)  
 ![local_properties](https://github.com/user-attachments/assets/1fc1f153-029f-4844-b76c-797c35377311)  
 
